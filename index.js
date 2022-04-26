@@ -12,6 +12,7 @@ const mongoose = require("mongoose");
 const { use } = require('bcrypt/promises');
 const { text } = require('express');
 const question = require('./models/question');
+let alert = require('alert');
 //To connect the mongodb ( Database )
 mongoose.connect("mongodb+srv://qna2:hello@cluster0.y9m9x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", { 
     useNewUrlParser: true, 
@@ -116,7 +117,8 @@ app.post('/login',async(req,res)=>{
     const user= await User.findOne({username});
     const validPassword = await bcrypt.compare(password, user.password);
     if(password!=rwpassword || !validPassword){
-        res.send("Passwords Not Matching or Not a Valid Password");
+        alert("Incorrect Password");
+        res.redirect('/login');
     }
     else{
         req.session.user_id=username;
@@ -131,19 +133,27 @@ app.post('/login',async(req,res)=>{
 app.post('/studentregister',async(req,res)=>{
     const {firstname,lastname,gender,address,username,password,tag,mobile} = req.body;
     const hash = await bcrypt.hash(password, 12);
-    const user = new User({
-        firstname,
-        lastname,
-        gender,
-        address,
-        username,
-        password: hash,
-        tag:"student",
-        mobile
-    }) 
 
-    await user.save();
-    res.redirect('/login');
+    const userExists= await User.findOne({username});
+    if(userExists!=null){
+        alert("User Already Exists");
+        res.redirect("/studentregister");
+    }
+    else{
+        const user = new User({
+            firstname,
+            lastname,
+            gender,
+            address,
+            username,
+            password: hash,
+            tag:"student",
+            mobile
+        }) 
+    
+        await user.save();
+        res.redirect('/login');
+    }
 })
 
 app.post('/deletequestion',async(req,res)=>{
@@ -169,21 +179,27 @@ app.post('/askquestions',async(req,res)=>{
 app.post('/professorregister',async(req,res)=>{
     const {firstname,lastname,gender,address,username,password,tag,mobile,specilisation,department} = req.body;
     const hash = await bcrypt.hash(password, 12);//Hashing the password
-    const user = new User({
-        firstname,
-        lastname,
-        gender,
-        address,
-        username,
-        password: hash,
-        tag:"professor",
-        mobile,
-        specilisation,
-        department
-    }) 
-
-    await user.save();
-    res.redirect('/login');
+    const userExists= await User.findOne({username});
+    if(userExists!=null){
+        alert("User Already Exists");
+        res.redirect("/studentregister");
+    }
+    else{
+        const user = new User({
+            firstname,
+            lastname,
+            gender,
+            address,
+            username,
+            password: hash,
+            tag:"professor",
+            mobile,
+            specilisation,
+            department
+        }) 
+        await user.save();
+        res.redirect('/login');
+    }
 })
 
 app.post('/logout',(req,res)=>{
@@ -191,7 +207,7 @@ app.post('/logout',(req,res)=>{
     res.redirect("/login");
 })
 
-app.listen(process.env.PORT || 2399, process.env.IP, function(req, res) {
+app.listen(process.env.PORT || 2391, process.env.IP, function(req, res) {
     console.log("Server has been started baby");
 });
 
