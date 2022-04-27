@@ -115,19 +115,25 @@ app.post('/professoranswer',async(req,res)=>{
 app.post('/login',async(req,res)=>{
     const{password,username,rwpassword}=req.body;
     const user= await User.findOne({username});
-    const validPassword = await bcrypt.compare(password, user.password);
-    if(password!=rwpassword || !validPassword){
-        alert("Incorrect Password");
+    if(!user){
+        alert("User Not Found");
         res.redirect('/login');
-    }
-    else{
-        req.session.user_id=username;
-        if(await user.tag=='student'){
-            res.redirect('/student');
-        } else{
-            res.redirect('/professor');
+    }else{
+        const validPassword = await bcrypt.compare(password, user.password);
+        if(password!=rwpassword || !validPassword){
+            alert("Incorrect Password");
+            res.redirect('/login');
+        }
+        else{
+            req.session.user_id=username;
+            if(await user.tag=='student'){
+                res.redirect('/student');
+            } else{
+                res.redirect('/professor');
+            }
         }
     }
+    
 })
 
 app.post('/studentregister',async(req,res)=>{
