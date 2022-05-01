@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         required: [true,'It is student for student and professor for professor']
     },
     mobile:{
-        type: String,
+        type: Number,
         required: [true,'Mobile cannot be empty']
     },
     specilisation:{

@@ -74,6 +74,10 @@ app.get('/faq',(req,res)=>{
     })
 })
 
+app.get('/changepassword',(req,res)=>{
+    res.render('forgetpassword');
+})
+
 
 app.get("*", function(req, res) {
     res.render("home.ejs");
@@ -86,6 +90,23 @@ app.post('/professor',(req,res)=>{
             question:data
         })
     })
+})
+
+app.post('/changepassword',async (req,res)=>{
+    const{username,password,mobile}=req.body;
+    const hash = await bcrypt.hash(password, 12);
+    const user = await User.findOneAndUpdate(
+        {username:username}&&{mobile:mobile},
+        {$set:{password:hash}},(err,data)=>{
+            if(err){
+                alert("Invalid username or mobile");
+                res.send(mobile);
+            } else{
+                alert("Password Updated");
+                res.redirect('/login');
+            }
+        })
+    await user.save();
 })
 
 app.post('/faq',(req,res)=>{
@@ -214,41 +235,6 @@ app.post('/logout',(req,res)=>{
 })
 
 app.listen(process.env.PORT || 2391, process.env.IP, function(req, res) {
-    console.log("Server has been started baby");
+    console.log("Server has been started");
 });
 
-
-
-
-
-
-
-
-
- 
-// Server path
-// const url = 'mongodb+srv://qna2:hello@cluster0.y9m9x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
-  
-// Name of the database
-// const dbname = "qna";
-  
-// mongoose.connect(url, (err,client)=>{
-//     if(!err) {
-//         console.log("successful connection with the server");  
-//     }
-//     else
-//         console.log("Error in the connectivity");
-// })
-
-// mongoose.connect('mongodb+srv://qna:qna@cluster0.y9m9x.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
-// {
-//     useNewUrlParser: true,
-//     useFindAndModify: false,
-//     useUnifiedTopology: true
-// });
-
-// const db = mongoose.connection;
-// db.on("error", console.error.bind(console, "connection error:"));
-// db.once("open", () => {
-//     console.log("Database connected");
-// });
